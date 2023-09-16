@@ -184,7 +184,8 @@ class Game extends Component {
 
     _startGame = () => {
         if (this.gameState !== GAMESTATE.PAUSED)
-            this.setState({ score: 0 , startTime: new Date().getTime(), addTime: 0})
+            this.setState({ score: 0 , addTime: 0})
+        this.setState({startTime:new Date().getTime()})
         this.gameState = GAMESTATE.IN_PROGRESS;
         if (this.letters.length === 0) {
             this.generateLetter();
@@ -194,10 +195,12 @@ class Game extends Component {
 
     _pauseGame = () => {
         this.gameState = GAMESTATE.PAUSED;
-        this.addTime+=(new Date().getTime() - this.startTime);
-        this.startTime=0;
-        clearInterval(this.gameInterval)
-        this.setState({ updateFlag: !this.state.updateFlag })
+        const elapsedTime = new Date().getTime() - this.state.startTime;
+        this.setState((prevState) => ({
+            addTime: prevState.addTime + elapsedTime
+        }));
+        clearInterval(this.gameInterval);
+        this.setState({ updateFlag: !this.state.updateFlag });
     }
 
     _restartGame = () => {
@@ -358,15 +361,10 @@ if (foundLetter) {
     }
   }
 }
-
-
         this.setState({ updateFlag: !this.state.updateFlag })
-
-
         //check word automatically 
         clearTimeout(this.checkWordAutomatic)
         this.checkWordAutomatic = setTimeout(this._checkWordAndDestroy, checkWordTime)
-
     }
 
     _checkWordAndDestroy = () => {
@@ -475,11 +473,18 @@ if (foundLetter) {
                         <Button variant="contained" size="small" color="primary" className={css(styles.buttons)} onClick={this._moveRight}><RightIcon /></Button>}
                     </div>
                     <div className={css(styles.sectionStyles)}>
-                    {this.gameState !== GAMESTATE.ENDED && this.gameState !== GAMESTATE.INITIAL && 
+                    {this.gameState === GAMESTATE.IN_PROGRESS &&
                     <Button variant="contained" size="small" color="primary" className={css(styles.buttons)} onClick={this._dummyFunc}>
                         {timerIcon}
                         {' '}
                         {this._formatTime(new Date().getTime() - this.state.startTime + this.state.addTime)}
+                    </Button>
+                    }
+                    {this.gameState === GAMESTATE.PAUSED &&
+                    <Button variant="contained" size="small" color="primary" className={css(styles.buttons)} onClick={this._dummyFunc}>
+                        {timerIcon}
+                        {' '}
+                        {this._formatTime(this.state.addTime)}
                     </Button>
                     }
                     </div>
