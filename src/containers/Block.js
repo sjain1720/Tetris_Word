@@ -52,7 +52,7 @@ export default class Block extends Component {
     render() {
         const { letter, pos } = this.props;
         console.log(pos);
-        let fillerStyle = { border: '1px solid black' }
+        let fillerStyle = { border: '1px solid blue' }
         if (letter) {
             let _backgroundColor = letter.moving ? COLORS.MOVING : COLORS.NOTMOVING;
             if (letter.isWord) _backgroundColor = COLORS.POSSIBLE_WORD;

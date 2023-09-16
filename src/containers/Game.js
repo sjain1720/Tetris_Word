@@ -10,25 +10,35 @@ import DownIcon from '@material-ui/icons/ArrowDownward';
 import BlockColumn from './Column'
 import { noOfColumn, numberOfRow, moveTime, windowWidth, checkWordTime } from '../config/config'
 import { checkWord, sortWordQueue } from '../config/wordCheck';
-import { saveHighScore, scoreForThisWord } from '../config/SaveScore';
+import { scoreForThisWord } from '../config/SaveScore';
 import { lettersAdjustedPerWeight } from '../config/GenerateLetter';
 import GameOver from './GameOver';
 
+const flagIcon = <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24" style={{ fill: 'aqua' }}>
+    <path d="M200-120v-680h360l16 80h224v400H520l-16-80H280v280h-80Zm300-440Zm86 160h134v-240H510l-16-80H280v240h290l16 80Z"/>
+    </svg>
 
+const restartIcon = <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24" style={{ fill: 'aqua' }}>
+    <path d="M480-80q-75 0-140.5-28.5t-114-77q-48.5-48.5-77-114T120-440h80q0 117 81.5 198.5T480-160q117 0 198.5-81.5T760-440q0-117-81.5-198.5T480-720h-6l62 62-56 58-160-160 160-160 56 58-62 62h6q75 0 140.5 28.5t114 77q48.5 48.5 77 114T840-440q0 75-28.5 140.5t-77 114q-48.5 48.5-114 77T480-80Z"/>
+    </svg>
 
+const timerIcon  = <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24" style={{ fill: 'aqua' }}>
+    <path d="M360-840v-80h240v80H360Zm80 440h80v-240h-80v240Zm40 320q-74 0-139.5-28.5T226-186q-49-49-77.5-114.5T120-440q0-74 28.5-139.5T226-694q49-49 114.5-77.5T480-800q62 0 119 20t107 58l56-56 56 56-56 56q38 50 58 107t20 119q0 74-28.5 139.5T734-186q-49 49-114.5 77.5T480-80Zm0-80q116 0 198-82t82-198q0-116-82-198t-198-82q-116 0-198 82t-82 198q0 116 82 198t198 82Zm0-280Z"/>
+    </svg>
 const styles = StyleSheet.create({
     container: {
         display: 'flex',
-        backgroundColor:'black',
+        backgroundColor:'#02051E',
         flexDirection: 'column',
         justifyContent: 'flex-start',
     },
     scoreLine: {
         display: 'flex',
         flexDirection: 'row',
+        borderBottom: '4px solid aqua', 
         justifyContent: 'space-around',
         alignItems: 'center',
-        backgroundColor: 'black',
+        backgroundColor: '#02051E',
         color: 'aqua',
         fontFamily: "'Roboto', sans-serif",
         fontSize: "1.0rem",
@@ -41,7 +51,7 @@ const styles = StyleSheet.create({
         },
     },
     gameContainer: {
-        backgroundColor: 'aqua',
+        backgroundColor: '#020626',
         display: 'flex',
         flexDirection: 'row',
         justifyContent: 'center'
@@ -55,9 +65,17 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'center',
         alignItems: 'center',
-        // flexWrap: 'wrap',
+        borderTop: '4px solid aqua',
+        backgroundColor:'#02051E',
         padding: 0
     },
+    sectionStyles : {
+        flex: 1, // Each section takes an equal share of the available space
+        height: '100%',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+      },
     buttons: {
         border: '1px solid aqua',
         color: 'aqua',
@@ -88,7 +106,9 @@ class Game extends Component {
     checkWordAutomatic;
     state = {
         updateFlag: false,
-        score: 0
+        score: 0,
+        startTime: 0,
+        addTime: 0,
     }
 
     componentDidMount() {
@@ -164,7 +184,7 @@ class Game extends Component {
 
     _startGame = () => {
         if (this.gameState !== GAMESTATE.PAUSED)
-            this.setState({ score: 0 })
+            this.setState({ score: 0 , startTime: new Date().getTime(), addTime: 0})
         this.gameState = GAMESTATE.IN_PROGRESS;
         if (this.letters.length === 0) {
             this.generateLetter();
@@ -174,13 +194,17 @@ class Game extends Component {
 
     _pauseGame = () => {
         this.gameState = GAMESTATE.PAUSED;
+        this.addTime+=(new Date().getTime() - this.startTime);
+        this.startTime=0;
         clearInterval(this.gameInterval)
-        saveHighScore(this.state.score) //just save
         this.setState({ updateFlag: !this.state.updateFlag })
     }
 
     _restartGame = () => {
+        this.letters = [];
+        clearInterval(this.gameInterval)
         this.gameState = GAMESTATE.ENDED;
+        this.setState({ updateFlag: !this.state.updateFlag })
         this._startGame();
     }
 
@@ -210,7 +234,6 @@ class Game extends Component {
                 }
                 if (this.letters[i].pos.y === 0) {
                     // so basically one column is full Game over
-                    saveHighScore(this.state.score)
                     this.letters = [];
                     clearInterval(this.gameInterval)
                     this.gameState = GAMESTATE.ENDED;
@@ -239,7 +262,15 @@ class Game extends Component {
         }
         return _newLetter;
     }
-
+    _dummyFunc = () =>
+    {
+        
+    }
+    _formatTime(milliseconds) {
+        const minutes = Math.floor(milliseconds / 60000); // 1 minute = 60,000 milliseconds
+        const seconds = Math.floor((milliseconds % 60000) / 1000); // 1 second = 1,000 milliseconds
+        return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+      }
     generateLetter = () => {
         const letter = this._getNewLetter();
         const columnno = Math.floor(Math.random() * noOfColumn);
@@ -414,7 +445,7 @@ if (foundLetter) {
                 <div className={css(styles.scoreLine)}>
                     <div className={css(styles.score)}> {`USERFACET`} </div>
                     {this.nextLetter && <div className={css(styles.score)}> {`Next : ${this.nextLetter.toUpperCase()}`} </div>}
-                    <div className={css(styles.score)}> {`Score : ${this.state.score}`} </div>
+                    <div className={css(styles.score)}> {flagIcon}{` Score : ${this.state.score}`} </div>
                 </div>
                 {this.gameState !== GAMESTATE.ENDED &&
                     <div className={css(styles.gameContainer)}>
@@ -425,8 +456,11 @@ if (foundLetter) {
                     <GameOver score={this.state.score} />
                 }
                 <div className={css(styles.controlContainer)}>
+                    <div className={css(styles.sectionStyles)}>
                     {(this.gameState === GAMESTATE.IN_PROGRESS || this.gameState === GAMESTATE.PAUSED) &&
-                        <Button variant="contained" size="small" color="secondary" className={css(styles.buttons)} onClick={this._restartGame}> Restart</Button>}
+                        <Button variant="contained" size="small" color="secondary" className={css(styles.buttons)} onClick={this._restartGame}> {restartIcon}</Button>}
+                    </div>
+                    <div className={css(styles.sectionStyles)}>
                     {this.gameState !== GAMESTATE.IN_PROGRESS &&
                         <Button variant="contained" size="small" color="secondary" className={css(styles.buttons)} onClick={this._startGame}> {this.letters.length > 0 ? "Resume" : "Start"}</Button>}
                     {this.gameState !== GAMESTATE.PAUSED && this.gameState === GAMESTATE.IN_PROGRESS &&
@@ -439,6 +473,16 @@ if (foundLetter) {
                         <Button variant="contained" size="small" color="primary" className={css(styles.buttons)} onClick={this._moveDown}><DownIcon /></Button>}
                     {this.gameState !== GAMESTATE.PAUSED && this.gameState === GAMESTATE.IN_PROGRESS &&
                         <Button variant="contained" size="small" color="primary" className={css(styles.buttons)} onClick={this._moveRight}><RightIcon /></Button>}
+                    </div>
+                    <div className={css(styles.sectionStyles)}>
+                    {this.gameState !== GAMESTATE.ENDED && this.gameState !== GAMESTATE.INITIAL && 
+                    <Button variant="contained" size="small" color="primary" className={css(styles.buttons)} onClick={this._dummyFunc}>
+                        {timerIcon}
+                        {' '}
+                        {this._formatTime(new Date().getTime() - this.state.startTime + this.state.addTime)}
+                    </Button>
+                    }
+                    </div>
                 </div>
             </div>
         );

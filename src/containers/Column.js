@@ -8,7 +8,7 @@ const styles = StyleSheet.create({
     container: {
         display: 'flex',
         flexDirection: 'column',
-        border: '1px solid aqua'
+        border: '1px solid blue'
     }
 });
 
