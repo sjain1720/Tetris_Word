@@ -1,4 +1,4 @@
-
+/*
 
 const HIGH_SCORE_KEY = "highScore";
 
@@ -15,7 +15,7 @@ export const getHighScore = () => {
         return savedHighScore;
     else
         return 0;
-}
+}*/
 
 
 export const scoreForThisWord = (length) => {

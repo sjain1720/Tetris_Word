@@ -16,7 +16,7 @@ export const blockSize = () => {
 
 
 export const COLORS = {
-    MOVING: "#8237fb",
-    NOTMOVING: "#262723",
+    MOVING: "orange",
+    NOTMOVING: "#0C3051",
     POSSIBLE_WORD: "#32bc4c"
 }

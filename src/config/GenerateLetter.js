@@ -31,24 +31,3 @@ const shuffle = (a) => {
       }
       return a;
 }
-
-
-// export const wordsAdjustedPerFrequency = () => {
-//   let wordsArray = [];
-
-//   // Create an array of words weighted by their frequency
-//   wordArray.forEach((word, index) => {
-//     for (let i = 0; i < wordArray.length - index; i++) {
-//       wordsArray.push(word);
-//     }
-//   });
-
-//   return shuffle(wordsArray);
-// };
-
-// const shuffle = (a) => {
-//   for (let i = a.length - 1; i > 0; i--) {
-//     const j = Math.floor(Math.random() * (i + 1));
-//     [a[i], a[j]] = [a[j], a[i]];
-//   }
-//   return a;
